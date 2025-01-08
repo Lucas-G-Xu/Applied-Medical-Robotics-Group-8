@@ -1,0 +1,58 @@
+% Communicaiton between Arduino and MATLAB
+%   @author         Alejandro Granados
+%   @organisation   King's College London
+%   @module         Medical Robotics Hardware Development
+%   @year           2024
+
+close all
+clear all
+
+% declare global variables
+%   hPlot       plot widget
+%   hFig        figure widget
+%   c           counter
+%   x           x coordinate of points
+%   y           y coordinate of points
+global hPlot hFig c x y 
+
+% Create GUI
+hFig = figure;
+
+% Create plot area
+hPlot = axes('Position', [0.2, 0.35, 0.6, 0.6]);
+
+% Set up and initialise variables for real-time plotting
+c = 0;
+x = [];
+y = [];
+
+% TODO initialise geometry of 2-arm robotic system
+r=78;
+
+% TODO Specify the angle resolution you want the workspace to be plotted at
+resolution = 50;    % [1..50]
+angle1_range = linspace(0,360,resolution);  % [0..360] degrees given the resolution
+angle2_range = linspace(0,360,resolution);   % [0..360] degrees given the resolution
+
+% TODO Iterate through the given resolution of both angles
+for t1 = 1: angle1_range 
+    for t2 = angle2_range
+        % increase counter to save information 
+        c = c+1;
+
+        % TODO compute the homogeneous transformation via
+        % forward_kinematics() function given the geometry and angles
+        [x, y] = forward_kinematics(t1, t2, r)
+        
+    end
+end
+
+% real-time plotting
+colour = c;
+scatter(hPlot, x, y, 20, colour, 'filled');
+xlim([-(r+r),r+r]);
+ylim([-(r+r),r+r]);
+hold on
+
+% Close GUI
+%delete(hFig);
