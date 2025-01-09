@@ -1,3 +1,5 @@
+
+
 function [th1, th2] = inverse_kinematics(x, y, r)
 N = atand(y/x);
 hyp = y/sind(N);

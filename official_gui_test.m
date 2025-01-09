@@ -1,4 +1,3 @@
-clear
 % Communicaiton between Arduino and MATLAB
 %   @author         Alejandro Granados
 %   @organisation   King's College London
@@ -18,7 +17,7 @@ clear all
 %   c           command type
 %   y1          data stream series 1
 %   y2          data stream series 2
-global s hInput1 hInput2 hPlot hFig hTimer c y1 y2 th1 th2 
+global s hInput1 hInput2 hPlot hFig hTimer c y1 y2
 
 %% Set up
 % Create serial port object
@@ -40,7 +39,6 @@ hSend = uicontrol('Style', 'pushbutton', 'String', 'Send', 'Position', [20, 50, 
 hPlot = axes('Position', [0.2, 0.6, 0.6, 0.3]);
 
 % Set up variables for real-time plotting
-r=78;
 c = [];
 y1 = [];
 y2 = [];
@@ -54,7 +52,7 @@ hFig.CloseRequestFcn = @closeGUI;
 
 %% Callback function for sending commands
 function sendCommand(~, ~)
-global s hInput1 hInput2 r th1 th2
+global s hInput1 hInput2
 
     % Get values from input fields as strings but convert to numbers
     input1 = str2num(get(hInput1, 'String'));
@@ -68,13 +66,8 @@ global s hInput1 hInput2 r th1 th2
         return; % input field must contain one value
     end
     
-    % call IK here
-    [theta1, theta2] = inverse_kinematics(input1, input2, 78)
-    %th1 = 30;
-    %th2 = 120;
-
     % format command values as a string, e.g. C40.0,3.5;
-    cmdStr = sprintf("C%.2f,%.2f;", theta1, theta2);
+    cmdStr = sprintf("C%.2f,%.2f;", input1(1), input2(1));
     
     % Send command string to microcontroller
     write(s, cmdStr, "string");
@@ -83,7 +76,7 @@ end
 
 %% Callback function fo reading time series values from microcontroller
 function readDataTimer(~, ~)
-global s hPlot c y1 y2 r 
+global s hPlot c y1 y2
 
     % Read the ASCII data from the serialport object.
     dataStr = readline(s);
@@ -96,15 +89,10 @@ global s hPlot c y1 y2 r
 
     % Parse data values from string and add accumulate into arrays
     % e.g. Arduino sending 2 series: c1,100
-    data = sscanf(dataStr, "%c%f,%f")
-
-    %CALL FK HERE
-    cth1 = data(2)
-    cth2 = data(3)
-    [cx, cy] = forward_kinematics(cth1, cth2, 78)
+    data = sscanf(dataStr, "%c%f,%f");
     c = [c, data(1)];
-    y1 = [y1, cx]; 
-    y2 = [y2, cy];
+    y1 = [y1, data(2)]; 
+    y2 = [y2, data(3)];
     
     % configure callback 
     configureCallback(s, "off");
